@@ -5,11 +5,11 @@ import Form from "../Form"
 import JumbotronHeader from "../JumbotronHeader"
 
 
-
+// { id: 1, name: "Amir", SAT: true, factor: 1 }, { id: 3, name: "jesse", ACT: true, factor: 1 }
 
 class MainLayout extends React.Component {
   state = {
-    digitalTimers: [{ id: 1, name: "Amir", SAT: true, factor: 1 }, { id: 3, name: "jesse", ACT: true, factor: 1 }],
+    digitalTimers: [{ id: 1, name: "Amir", SAT: true, factor: 1 }],
     
   }
   removeTimer = (id) => {

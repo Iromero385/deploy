@@ -2,16 +2,18 @@
   "name": "deployme",
   "version": "0.1.0",
   "private": true,
-  "homepage":"https://iromero385.github.io/deploy/",
+  "homepage": "https://iromero385.github.io/deploy/",
   "dependencies": {
     "gh-pages": "^2.0.1",
+    "moment": "^2.24.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-icons": "^3.6.1",
     "react-scripts": "3.0.0"
   },
   "scripts": {
-    "predeploy":"npm run build",
-    "deploy":"gh-pages -d build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
