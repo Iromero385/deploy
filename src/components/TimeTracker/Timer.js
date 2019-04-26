@@ -1,106 +1,110 @@
 import React, { Component } from "react"
 import moment from "moment"
-import db from "../utils/firebase"
+import SkipButton from "./SkipButtton"
 
 class Timer extends Component {
     intervalHandler;
     state = {
-        elapseTime: this.props.data.timer
-
+        timeStamp: null,
+        status: false,
+        timer: 0,
+        elapseTime: 0
     };
-    componentWillReceiveProps(nextProps, _nextState) {
-        if (this.props.data.status === false && nextProps.data.status === true && this.props.name === 1) {
-            this.setInterval(); // begins clock without updating firebse
-        }
-        else if (this.props.data.status === true && nextProps.data.status === false && this.props.name === 1) {
-            clearInterval(this.intervalHandler); // pauses clock without updating firebase
+    componentWillReceiveProps(nextProps, _nextState){
+        if (this.props.breakRound < nextProps.breakRound || nextProps.breakRound === 0){
+            const currentBreakTimeNeeded = this.props.breakSAT[nextProps.breakRound]*60;
+            this.setState({ timer: currentBreakTimeNeeded, elapseTime: currentBreakTimeNeeded })
         }
     }
     componentDidMount() {
-        if (this.props.handleSkipTest) {
+        if(this.props.handleSkipTest){
             this.props.handleSkipTest(this.resetTimer)
         }
-        this.updateTimer();
-        if(this.props.data.status && this.props.name === 1){
-            this.setInterval(); 
+        if (this.props.SAT && this.props.name === 1) {
+            const currentTimeNeeded = this.props.testTimes.SAT[this.props.testRound] * 60 * this.props.factor;
+            this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded, testSAT:this.props.testTimes.SAT, testACT:this.props.testTimes.ACT })
+        }
+        else if (!this.props.SAT && this.props.name === 1) {
+            const currentTimeNeeded = this.props.testTimes.ACT[this.props.testRound] * 60 * this.props.factor;
+            this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded, testSAT:this.props.testTimes.SAT, testACT:this.props.testTimes.ACT  })
+        }
+        else {
+        
+            if(this.props.SAT){
+                const currentBreakTimeNeeded = this.props.breakSAT[this.props.breakRound]*60;
+                this.setState({ timer: currentBreakTimeNeeded, elapseTime: currentBreakTimeNeeded })
+            }
+            else{
+                this.setState({ timer: 300, elapseTime: 300 })
+            }
+    
         }
     }
-    setInterval() {
-        clearInterval(this.intervalHandler);
-        this.intervalHandler = setInterval(async () => {
+    timerResumes = () => {
+        // elapseTime has reach zero 
+        if (this.state.elapseTime <= 0) {
+            if (this.props.SAT && this.props.name === 1) {
+                const currentTimeNeeded = this.state.testSAT[this.props.testRound] * 60 * this.props.factor
+                this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded },this.props.changeTest(this.props.testRound))
+            }
+            else if (!this.props.SAT & this.props.name === 1) {
+                const currentTimeNeeded = this.state.testACT[this.props.testRound] * 60 * this.props.factor;
+                this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded },this.props.changeTest(this.props.testRound))
+            }
+            else {
+                if(this.props.SAT){
+                    const currentBreakTimeNeeded = this.props.breakSAT[this.props.breakRound]*60* this.props.factor;
+                    this.setState({ timer: currentBreakTimeNeeded, elapseTime: currentBreakTimeNeeded })
+                }
+                else{
+                    this.setState({ timer: 300, elapseTime: 300 })
+                }
+            }
+        }
+        // initialize timeStamp
+        this.setState({ timeStamp: moment() })
+        // using intervalHandler to display content on page every second
+        this.intervalHandler = setInterval(() => {
             if (this.state.elapseTime <= 0) {
                 // write what happens when the timer reaches zero
                 this.timerFreeze();
-                if (this.props.name === 1) {
-                    await db.nextUpdate({ ...this.props.data, status: false, timer: -1 })
-                    await this.setState({ elapseTime: 0 })
+                if (this.props.name === 1){
+                    this.props.increaseTestRound()
                 }
+                this.setState({ elapseTime: 0, status: false },()=>{
+                    if (this.props.name === 1){
+                        this.props.changePercentage(0)
+                    }
+                })
             }
             else {
-                this.setState({ elapseTime: Math.floor(this.props.data.timer - Math.abs(this.props.data.timeStamp - moment().valueOf() / 1000)) })
-                if (this.props.name === 1) {
-                    this.props.changePercentage(this.state.elapseTime)
-                }
-
+                this.setState({ elapseTime: this.state.timer - Math.abs(this.state.timeStamp.diff(moment.now(), "seconds"))}, ()=>{
+                    if (this.props.name === 1){
+                        this.props.changePercentage(this.state.elapseTime)
+                    }
+                })
             }
         }, 1000)
     }
-    async updateTimer() {
-        if (this.props.data.SAT && this.props.name === 1) {
-            const currentTimeNeeded = this.props.testTimes.SAT[this.props.data.testRound] * this.props.data.factor;
-            //initialize timer in database to begin round
-            if (this.props.data.timer <= 0) {
-                await db.nextUpdate({ ...this.props.data, timer: currentTimeNeeded * 60 })
-                await this.setState({ elapseTime: currentTimeNeeded * 60 })
-            }
-            else {
-                await this.setState({ elapseTime: this.props.data.timer })
-            }
+    timerFreeze = () => {
+        if (this.state.status){
+            this.setState({status:!this.state.status})
         }
-        else if (this.props.data.ACT && this.props.name === 1) {
-            const currentTimeNeeded = this.props.testTimes.ACT[this.props.data.testRound] * this.props.data.factor;
-            if (this.props.data.timer <= 0) {
-                await db.nextUpdate({ ...this.props.data, timer: currentTimeNeeded * 60 })
-                await this.setState({ elapseTime: currentTimeNeeded * 60 })
-            } else {
-                this.setState({ elapseTime: this.props.data.timer })
-            }
+        this.setState({ timer: this.state.elapseTime })
+        clearInterval(this.intervalHandler)
+    }
+    toogleTimer = () => {
+        if (!this.state.status) {
+            this.setState({ status: !this.state.status }, this.timerResumes())
         }
         else {
-            if (this.props.data.SAT) {
-                const currentBreakTimeNeeded = this.props.breakSAT[this.props.data.testRound];
-                await this.setState({ elapseTime: currentBreakTimeNeeded * 60 })
-            }
-            else {
-                await this.setState({ timer: 5 * 60, elapseTime: 5 * 60 })
-            }
-
-        }
-    }
-    timerResumes = async () => {
-        // if new timer is needed because the old timer has reach zero
-        this.updateTimer()
-        // initialize timeStamp
-        await db.nextUpdate({ ...this.props.data, timeStamp: Math.floor(moment().valueOf() / 1000) })
-        this.setInterval();
-    }
-    timerFreeze = async () => {
-        
-        await db.nextUpdate({ ...this.props.data, timer: this.state.elapseTime, status: !this.props.data.status })
-    }
-    toogleTimer = async () => {
-        if (!this.props.data.status) {
-            await db.nextUpdate({ ...this.props.data, status: !this.props.data.status })
-            this.timerResumes();    
-        }
-        else {
-            this.timerFreeze(); 
+            this.setState({ status: !this.state.status }, this.timerFreeze())
         }
     }
     timeConverter = (t) => {
-        var hours = Math.floor(t / (60 * 60))
-        var minutes = Math.floor((t % (60 * 60)) / 60)
-        var seconds = t - hours * (60 * 60) - minutes * 60;
+        var hours = Math.floor(t / (60*60))
+        var minutes = Math.floor((t % (60*60))/60)
+        var seconds = t - hours*(60*60) - minutes*60;
 
         if (seconds < 10) {
             seconds = "0" + seconds;
@@ -111,40 +115,56 @@ class Timer extends Component {
         else if (minutes < 10) {
             minutes = "0" + minutes;
         }
-        if (hours === 0) {
+        if (hours === 0 ){
             return `${minutes}:${seconds}`
         }
         else return `${hours}:${minutes}:${seconds}`
     }
-    resetTimer = () => {
+    resetTimer = async () =>{
         this.timerFreeze();
-        this.setState({ status: !this.state.status })
+        if ( this.state.status){
+            await this.setState({status:!this.state.status})
+        }
         if (this.props.SAT && this.props.name === 1) {
             const currentTimeNeeded = this.props.testTimes.SAT[this.props.testRound] * 60 * this.props.factor;
-            this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded })
+            this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded, testSAT:this.props.testTimes.SAT, testACT:this.props.testTimes.ACT })
         }
         else if (!this.props.SAT && this.props.name === 1) {
             const currentTimeNeeded = this.props.testTimes.ACT[this.props.testRound] * 60 * this.props.factor;
-            this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded })
+            this.setState({ timer: currentTimeNeeded, elapseTime: currentTimeNeeded, testSAT:this.props.testTimes.SAT, testACT:this.props.testTimes.ACT  })
         }
         else {
-
-            if (this.props.SAT) {
-                const currentBreakTimeNeeded = this.props.breakSAT[this.props.testRound] * 60;
+        
+            if(this.props.SAT){
+                const currentBreakTimeNeeded = this.props.breakSAT[this.props.breakRound]*60;
                 this.setState({ timer: currentBreakTimeNeeded, elapseTime: currentBreakTimeNeeded })
             }
-            else {
+            else{
                 this.setState({ timer: 300, elapseTime: 300 })
             }
-
+    
         }
     }
+    skipButton = () => {
+        if(this.props.name === 2){
+            return <SkipButton name="Break" id={2} onClick={this.props.handleSkipTest}/>
+        }
+        else{
+            return <SkipButton name="Test" id={1} onClick={this.props.handleSkipTest}/>
+        }
+    }
+
+
     render() {
 
         return (
-            <span className={`btn btn-block emphasisBtn`} style={{ backgroundColor: this.props.color }} onClick={this.toogleTimer}>
-                {(this.props.data.btimer <= 0) ? "Next Test" : ((this.props.data.status) ? this.timeConverter(this.state.elapseTime) : "Paused")}
-            </span>
+            <div>
+                <span className={`btn btn-block emphasisBtn`} style={{backgroundColor:this.props.color}} onClick={() => (this.toogleTimer()) }>
+                    {(this.state.elapseTime === 0) ? "Next Test" : ((this.state.status ) ? this.timeConverter(this.state.elapseTime) : (this.state.timer === this.state.elapseTime) ? `Start - ${this.timeConverter(this.state.elapseTime)}`: "Paused" )}
+                </span>
+                {this.skipButton()}
+            </div>
+            
         )
     }
 };

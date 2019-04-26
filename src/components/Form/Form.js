@@ -56,20 +56,21 @@ class Form extends Component {
     this.setState({ displayAdd: !this.state.displayAdd })
   };
   render() {
+    // Notice how each input has a `value`, `name`, and `onChange` prop
     return (
       <div>
         <div className="row">
-          <div className="col-md-11 lead">
+          <div className="col-11 lead">
             {this.state.displayAdd ? `Adding ${this.props.message} in progress...` : `Click on the add symbol to add a ${this.props.message} timer. `}
           </div>
-          <div className="col-md-1">
+          <div className="col-1 text-cente">
             <div style={{ fontSize: "1.75rem", color: "lightseagreen", cursor: "pointer" }}> {this.state.displayAdd ? <IoIosCloseCircleOutline onClick={this.openAddMenu} /> : <IoIosAddCircleOutline onClick={this.openAddMenu} />}</div>
           </div>
         </div>
         <div className={`row pt-2 pb-4 mx-0 my-2 rounded ${this.state.displayAdd ? "" : "d-none"}`} style={{ backgroundColor: "lightseagreen", transition: "5s" }}>
-          <div className="col-md-12" >
+          <div className="col-12" >
             <div className="row ">
-              <div className="col-md-4">
+              <div className="col-4">
                 <label>Name </label>
                 <input className="form-control"
                   value={this.state.name}
@@ -79,14 +80,14 @@ class Form extends Component {
                   placeholder="Name"
                 />
               </div>
-              <div className="col-md-4">
+              <div className="col-4">
                 <label>Test </label>
                 <select className="form-control" name="testType" onChange={this.handleInputChange} >
                   <option>SAT</option>
                   <option>ACT</option>
                 </select>
               </div>
-              <div className="col-md-4">
+              <div className="col-4">
                 <label>Time Factor</label>
                 <select className="form-control" name="factor" onChange={this.handleInputChange} >
                   <option>1</option>
@@ -96,11 +97,12 @@ class Form extends Component {
               </div>
             </div>
             <div className="row mt-3">
-              <div className="col-md-3 offset-md-9 col-sm-5 offset-sm-7">
+              <div className="col-2 offset-10">
                 <button type="submit" className="btn btn-block" onClick={this.handleFormSubmit} style={{ backgroundColor: "darkslategray", color: "white" }}>Submit</button>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     );
