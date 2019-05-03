@@ -63,7 +63,7 @@ class Form extends Component {
           <div className="col-11 lead">
             {this.state.displayAdd ? `Adding ${this.props.message} in progress...` : `Click on the add symbol to add a ${this.props.message} timer. `}
           </div>
-          <div className="col-1 text-cente">
+          <div className="col-1 text-center">
             <div style={{ fontSize: "1.75rem", color: "lightseagreen", cursor: "pointer" }}> {this.state.displayAdd ? <IoIosCloseCircleOutline onClick={this.openAddMenu} /> : <IoIosAddCircleOutline onClick={this.openAddMenu} />}</div>
           </div>
         </div>
