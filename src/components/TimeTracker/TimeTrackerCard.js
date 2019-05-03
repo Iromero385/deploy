@@ -82,7 +82,7 @@ class TimeTrackerCard extends Component {
                 </div>
                 <div className="col-md-4 minHide">
                     <div className="row testBar">
-                        <div className={`col-md-12 text-light btn btn-block bg text-center rounded emphasisBtn`} onClick={() => { console.log(`audio${this.props.id}Div`) }} style={{ overflow: "hidden" }}>
+                        <div className={`col-md-12 text-light btn btn-block bg text-center rounded emphasisBtn`} onClick={() => { document.getElementById(`audio${this.props.id}Div`).pause()}} style={{ overflow: "hidden" }}>
                             <div style={{ width: `${this.state.percentage}%`, height: "100%", position: "absolute", top: 0, left: 0, backgroundImage: "linear-gradient(90deg, lightgreen,lightseagreen)", transition: ".5s", opacity: .5 }} >
                             </div>
                             <b>{`${this.state.currentTest} - ${parseFloat(100 - this.state.percentage).toFixed(2)} %`}
@@ -101,11 +101,11 @@ class TimeTrackerCard extends Component {
                     </div>
                 </div>
                 <div className="col-md-3 col-sm-12">
-                    <Timer name={1} testTimes={{ SAT: this.testSAT, ACT: this.testACT }} SAT={this.props.SAT} factor={this.state.factor} color="lightseagreen" testRound={this.state.testRound} increaseTestRound={this.increaseTestRound} changePercentage={this.changePercentage} changeTest={this.changeTest} handleSkipTest={this.handleSkipTest} targetDiv={() => document.getElementById(`audio${this.props.id}Div`).play()} />
+                    <Timer name={1} testTimes={{ SAT: this.testSAT, ACT: this.testACT }} SAT={this.props.SAT} factor={this.state.factor} color="lightseagreen" testRound={this.state.testRound} increaseTestRound={this.increaseTestRound} changePercentage={this.changePercentage} changeTest={this.changeTest} handleSkipTest={this.handleSkipTest} sound={() => document.getElementById(`audio${this.props.id}Div`).play()} />
 
                 </div>
                 <div className="col-md-3 col-sm-12">
-                    <Timer name={2} SAT={this.props.SAT} breakSAT={this.breakSAT} factor={this.state.factor} testRound={this.state.testRound} breakRound={this.state.breakRound} color="steelblue" handleSkipTest={this.handleSkipTest} pause={() => document.getElementById(`audio${this.props.id}Div`).pause} />
+                    <Timer name={2} SAT={this.props.SAT} breakSAT={this.breakSAT} factor={this.state.factor} testRound={this.state.testRound} breakRound={this.state.breakRound} color="steelblue" handleSkipTest={this.handleSkipTest} sound={() => document.getElementById(`audio${this.props.id}Div`).play()} />
                 </div>
             </div>
         )

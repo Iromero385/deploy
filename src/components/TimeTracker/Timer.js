@@ -69,7 +69,7 @@ class Timer extends Component {
             if (this.state.elapseTime <= 0) {
                 console.log("it zero")
                 // write what happens when the timer reaches zero
-                this.props.pause(); 
+                this.props.sound(); 
                 if (this.props.name === 1) {
                     this.props.increaseTestRound();
                 }
