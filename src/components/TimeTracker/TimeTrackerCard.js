@@ -6,8 +6,8 @@ import alarmDefault from "../assets/alarmSoundDefault.mp3"
 
 class TimeTrackerCard extends Component {
     resetTimer = null;
-    testSAT = [.60, 30, 20, 50, 45];
-    breakSAT = [.10, 5, 2, 1];
+    testSAT = [60, 30, 20, 50, 45];
+    breakSAT = [10, 5, 2, 1];
     testACT = [40, 55, 30, 30, 35];
     testNameOrderSAT = ["Reading", "W & L ", "Math No Calc", "Math Calc", "Essay"];
     testNameOrderACT = ["English", "Math", "Reading", "Science", "Essay"];
